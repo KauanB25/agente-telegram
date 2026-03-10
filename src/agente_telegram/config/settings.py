@@ -9,7 +9,7 @@ class Settings(BaseSettings):
         description="Token para comunicação com o telegram"
         )
 
-    db_postgree_host : str = Field(
+    db_postgree_host: str = Field(
         default="localhost",
         description="Servidor que hospeda o banco de dados"
         )
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
         alias="DB_POSTGREE_PORT"
         )
 
-    db_postgree_user: str =  Field(
+    db_postgree_user: str = Field(
         ...,
         description="Usuário para conexão",
         alias="DB_POSTGREE_USER"
@@ -46,9 +46,7 @@ class Settings(BaseSettings):
     alembic_table_version: str = Field(
         default="alembic_version",
         description="Nome da tabela que armazena a versão atual do banco"
-    )
-
-
+        )
     model_config = SettingsConfigDict(env_file=".env")
 
 
