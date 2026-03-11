@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from agente_telegram.model.users_telegram import UsersTelegram
 from agente_telegram.util.engine_postgre import create_engine_postgre
 from agente_telegram.config.settings import settings
+from agente_telegram.util.get_session import get_session
 
 
 class UserTelegram:
@@ -10,37 +11,40 @@ class UserTelegram:
     def __init__(self):
         self.engine = create_engine_postgre(
             settings.db_postgree_user,
-            settings.db_postgree_secret,
+            settings.db_postgree_secret.get_secret_value(),
             settings.db_postgree_host,
             settings.db_postgree_database,
             settings.db_postgree_driver
             )
 
-    def _session(self, usuario: UsersTelegram):
-
-        with Session(self.engine) as session:
-
-            new_user = usuario
-
-            session.add(new_user)
-
-            session.commit()
-
-    def insert_new_user(self, id_telegram, full_name):
-
+    def insert_new_user(self, id_telegram: int, full_name: str) -> bool:
         try:
-
             new_user = UsersTelegram(
                 id_telegram=id_telegram,
                 full_name=full_name
             )
 
-            self._session(new_user)
+            with get_session(self.engine) as session:
+
+                session.add(new_user)
+
+                session.commit()
 
             return True
 
         except Exception:
             return False
 
-    def consulta_existencia_usuario(self):
+    def update_user_phone(self, id_telegram: int, phone_number: str):
         pass
+
+    def consulta_existencia_usuario(self, id_telegram: int) -> UsersTelegram:
+
+        with get_session(self.engine) as session:
+
+            user = session.query(UsersTelegram).filter(UsersTelegram.id_telegram == id_telegram).first()
+
+        if not user:
+            raise ValueError("Usuário não encontrado")
+
+        return user
