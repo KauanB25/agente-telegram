@@ -36,7 +36,20 @@ class UserTelegram:
             return False
 
     def update_user_phone(self, id_telegram: int, phone_number: str):
-        pass
+
+
+        update_user = UsersTelegram(
+            id_telegram=id_telegram,
+            phone_number=phone_number
+        )
+
+        with get_session(self.engine) as session:
+
+            session.query(UsersTelegram).filter(UsersTelegram.id_telegram == id_telegram).update(update_user)
+
+            session.commit()
+
+
 
     def consulta_existencia_usuario(self, id_telegram: int) -> UsersTelegram:
 
