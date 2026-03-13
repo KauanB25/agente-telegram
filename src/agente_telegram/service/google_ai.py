@@ -1,15 +1,14 @@
-import os
-
 from google import genai
 from google.genai import types
 
+from agente_telegram.config.settings import settings
 
 class GoogleChat:
 
     def __init__(self):
-        api_key = os.getenv("GOOGLE_GEMINE_API_KEY")
+        api_key = settings.google_gemini_api_key
 
-        client = genai.Client(api_key)
+        self.client = genai.Client(api_key=api_key)
 
         system_prompt = """
 Você é a Maria, uma assistente virtual amigável, paciente e encorajadora, dedicada a ajudar o usuário a aprender e praticar inglês.
@@ -64,7 +63,7 @@ But I can teach you some programming vocabulary! For example, 'code' is 'código
             temperature=0.7
         )
 
-        self.chat = client.chats.create(
+        self.chat = self.client.chats.create(
             model='gemini-2.5-flash',
             config=config
         )
