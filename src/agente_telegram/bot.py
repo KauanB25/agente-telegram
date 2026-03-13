@@ -90,10 +90,9 @@ def echo(message: Message):
 
     if number:
         chat = GoogleChat()
-
         resposta = chat.send_message(message.text)
-
         bot.reply_to(message, resposta)
+        return
 
     bot.reply_to(message, "Digite /start e confirme seu número para continuar")
 
