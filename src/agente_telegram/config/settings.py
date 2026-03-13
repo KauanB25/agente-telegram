@@ -48,9 +48,9 @@ class Settings(BaseSettings):
         description="Nome da tabela que armazena a versão atual do banco"
         )
 
-    google_gemine_api_key: str = Field(
+    google_gemini_api_key: str = Field(
         ...,
-        alias="GOOGLE_GEMINE_API_KEY",
+        alias="GOOGLE_GEMINI_API_KEY",
         description="Api do google para comunicar com o gemini"
     )
 
