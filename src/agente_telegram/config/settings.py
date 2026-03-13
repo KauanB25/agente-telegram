@@ -47,6 +47,13 @@ class Settings(BaseSettings):
         default="alembic_version",
         description="Nome da tabela que armazena a versão atual do banco"
         )
+
+    google_gemine_api_key: str = Field(
+        ...,
+        alias="GOOGLE_GEMINE_API_KEY",
+        description="Api do google para comunicar com o gemini"
+    )
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

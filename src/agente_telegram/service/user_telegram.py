@@ -1,5 +1,3 @@
-from sqlalchemy.orm import Session
-
 from agente_telegram.model.users_telegram import UsersTelegram
 from agente_telegram.util.engine_postgre import create_engine_postgre
 from agente_telegram.config.settings import settings
@@ -37,27 +35,36 @@ class UserTelegram:
 
     def update_user_phone(self, id_telegram: int, phone_number: str):
 
-
-        update_user = UsersTelegram(
-            id_telegram=id_telegram,
-            phone_number=phone_number
-        )
-
         with get_session(self.engine) as session:
 
-            session.query(UsersTelegram).filter(UsersTelegram.id_telegram == id_telegram).update(update_user)
+            session.query(UsersTelegram).filter(
+                UsersTelegram.id_telegram == id_telegram
+                ).update(
+                    {"phone_number": phone_number}
+                    )
 
             session.commit()
 
-
+        return True
 
     def consulta_existencia_usuario(self, id_telegram: int) -> UsersTelegram:
 
         with get_session(self.engine) as session:
 
-            user = session.query(UsersTelegram).filter(UsersTelegram.id_telegram == id_telegram).first()
+            user = session.query(UsersTelegram).filter(
+                UsersTelegram.id_telegram == id_telegram
+                ).first()
 
         if not user:
             raise ValueError("Usuário não encontrado")
 
         return user
+
+    def consulta_phone_number(self, id_telegram) -> str | None:
+
+        with get_session(self.engine) as session:
+            number = session.query(UsersTelegram).filter(
+                UsersTelegram.id_telegram == id_telegram
+                ).first()
+
+        return number.phone_number
