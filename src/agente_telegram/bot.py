@@ -1,4 +1,5 @@
 import logging
+import json
 
 import telebot
 from telebot.types import Message, ReplyKeyboardMarkup, KeyboardButton
@@ -6,6 +7,7 @@ from telebot.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from agente_telegram.config.settings import settings
 from agente_telegram.service.user_telegram import UserTelegram
 from agente_telegram.service.google_ai import GoogleChat
+from agente_telegram.service.users_history import UserHistoryService
 
 
 logging.basicConfig(
@@ -15,10 +17,8 @@ logging.basicConfig(
 
 bot = telebot.TeleBot(settings.token_telegram.get_secret_value())
 
-class bot_telegram:
 
-    def __init__(self):
-        self.start_chat = None
+class bot_telegram:
 
     def cadastro_usuario(self, message: Message):
         user_telegram = UserTelegram()
@@ -39,6 +39,7 @@ class bot_telegram:
 
             if confirmacao:
                 logging.info("Cadastro realizado com sucesso")
+
             else:
                 logging.error("Erro ao cadastrar o usuário")
 
@@ -76,9 +77,43 @@ class bot_telegram:
 
             if confirmacao:
                 logging.info("Atualização realizada com sucesso")
+
             else:
                 logging.error("Erro ao atualizar o usuário")
 
+    def proccess_chat(self, message: Message):
+
+        history_instance = UserHistoryService()
+
+        history = history_instance.consult_history(message.from_user.id)
+
+        if type(history) is str:
+            history = list(history)
+
+        chat = GoogleChat(history)
+
+        if history == []:
+            logging.info("Chat iniciado")
+
+        #logging.info(f'{chat.chat.get_history()}')
+
+        resposta = chat.send_message(message.text)
+
+        raw_history = chat.chat.get_history()
+
+        history_to_save = []
+
+        for msg in raw_history:
+            history_to_save.append({
+                "role": msg.role,
+                "parts": [{"text": part.text} for part in msg.parts]
+            })
+
+        history_instance.update_history(message.from_user.id, history_to_save)
+
+        bot.reply_to(message, resposta)
+
+        return
 
     def echo(self, message: Message):
         user_telegram = UserTelegram()
@@ -88,12 +123,7 @@ class bot_telegram:
         number = user_telegram.consulta_phone_number(message.from_user.id)
 
         if number:
-            if self.start_chat is None:
-                chat = GoogleChat()
-                logging.info("Chat iniciado")
-                self.start_chat = True
-            resposta = chat.send_message(message.text)
-            bot.reply_to(message, resposta)
+            self.proccess_chat(message)
             return
 
         bot.reply_to(message, "Digite /start e confirme seu número para continuar")
@@ -103,7 +133,11 @@ class bot_telegram:
 
 if __name__ == "__main__":
     instancia = bot_telegram()
+
     bot.message_handler(commands=['start', 'hello'])(instancia.welcome)
+
     bot.message_handler(content_types=['contact'])(instancia.handle_contact)
+
     bot.message_handler(func=lambda msg: True)(instancia.echo)
+
     instancia.start_bot()

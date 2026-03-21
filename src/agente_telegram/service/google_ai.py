@@ -5,7 +5,7 @@ from agente_telegram.config.settings import settings
 
 class GoogleChat:
 
-    def __init__(self):
+    def __init__(self, history):
         api_key = settings.google_gemini_api_key
 
         self.client = genai.Client(api_key=api_key)
@@ -65,7 +65,8 @@ But I can teach you some programming vocabulary! For example, 'code' is 'código
 
         self.chat = self.client.chats.create(
             model='gemini-2.5-flash',
-            config=config
+            config=config,
+            history=history
         )
 
     def send_message(self, message):

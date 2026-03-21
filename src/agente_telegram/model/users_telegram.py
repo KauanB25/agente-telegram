@@ -1,11 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from typing import List, TYPE_CHECKING
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import BigInteger, String, DateTime, func
 
+from .base_model import Base
 
-class Base(DeclarativeBase):
-    pass
+if TYPE_CHECKING:
+    from .users_history import UserHistory
 
 
 class UsersTelegram(Base):
@@ -28,3 +31,5 @@ class UsersTelegram(Base):
         DateTime(timezone=True),
         onupdate=func.now()
     )
+
+    histories: Mapped[List["UserHistory"]] = relationship(back_populates="user")
