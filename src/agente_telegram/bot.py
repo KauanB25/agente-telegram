@@ -126,12 +126,19 @@ class bot_telegram:
         bot.reply_to(message, "Digite /start e confirme seu número para continuar")
 
     def reset_chat(self, message: Message):
+        '''Método para o usuário limpar o contexto do chat'''
+
         try:
             history_instance = UserHistoryService()
 
-            history_instance.reset_history(message.from_user.id, [])
+            history_instance.update_history(message.from_user.id, [])
 
             logging.info("Chat resetado com sucesso")
+
+            bot.send_message(
+                message.chat.id,
+                'Seu historico com a Maria foi limpo, envie uma nova mensagem para iniciar'
+                )
 
         except Exception as e:
             logging.error(f"Erro ao resetar o chat: {e}")
