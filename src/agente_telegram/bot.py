@@ -1,5 +1,4 @@
 import logging
-import json
 
 import telebot
 from telebot.types import Message, ReplyKeyboardMarkup, KeyboardButton
@@ -113,8 +112,6 @@ class bot_telegram:
 
         bot.reply_to(message, resposta)
 
-        return
-
     def echo(self, message: Message):
         user_telegram = UserTelegram()
 
@@ -128,13 +125,27 @@ class bot_telegram:
 
         bot.reply_to(message, "Digite /start e confirme seu número para continuar")
 
+    def reset_chat(self, message: Message):
+        try:
+            history_instance = UserHistoryService()
+
+            history_instance.reset_history(message.from_user.id, [])
+
+            logging.info("Chat resetado com sucesso")
+
+        except Exception as e:
+            logging.error(f"Erro ao resetar o chat: {e}")
+
     def start_bot(self):
         bot.infinity_polling()
+
 
 if __name__ == "__main__":
     instancia = bot_telegram()
 
     bot.message_handler(commands=['start', 'hello'])(instancia.welcome)
+
+    bot.message_handler(commands=['reset'])(instancia.reset_chat)
 
     bot.message_handler(content_types=['contact'])(instancia.handle_contact)
 
