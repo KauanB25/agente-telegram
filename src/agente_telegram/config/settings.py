@@ -54,6 +54,11 @@ class Settings(BaseSettings):
         description="Api do google para comunicar com o gemini"
     )
 
+    url_webhook: str =  Field(
+        ...,
+        alias='URL_WEBHOOK',
+        description="URL para qual o telegram irá enviar as requisições")
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

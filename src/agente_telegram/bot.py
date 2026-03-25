@@ -147,15 +147,21 @@ class bot_telegram:
         bot.infinity_polling()
 
 
-if __name__ == "__main__":
-    instancia = bot_telegram()
+instancia = bot_telegram()
 
+def setup_bot_handlers():
     bot.message_handler(commands=['start', 'hello'])(instancia.welcome)
-
     bot.message_handler(commands=['reset'])(instancia.reset_chat)
-
     bot.message_handler(content_types=['contact'])(instancia.handle_contact)
-
     bot.message_handler(func=lambda msg: True)(instancia.echo)
 
+
+setup_bot_handlers()
+
+def entrypoint():
+    instancia = bot_telegram()
     instancia.start_bot()
+
+
+if __name__ == "__main__":
+    entrypoint()
