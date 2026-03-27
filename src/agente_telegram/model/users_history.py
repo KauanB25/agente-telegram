@@ -2,7 +2,7 @@ from datetime import datetime
 
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import DateTime, func, ForeignKey, Identity
+from sqlalchemy import DateTime, func, ForeignKey, Identity, Boolean, text
 from sqlalchemy.dialects.postgresql import JSONB
 
 from .base_model import Base
@@ -33,6 +33,12 @@ class UserHistory(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now() # Atualiza a data automaticamente sempre que a linha for modificada no SQLAlchemy
+    )
+
+    notification_inactivity: Mapped[Boolean] = mapped_column(
+        Boolean,
+        server_default=text('false'),
+        nullable=False
     )
 
     # Relacionamento direto com a classe UserTelegram
