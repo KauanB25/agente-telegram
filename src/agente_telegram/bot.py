@@ -143,6 +143,11 @@ class bot_telegram:
         except Exception as e:
             logging.error(f"Erro ao resetar o chat: {e}")
 
+    @staticmethod
+    def send_mensage(id_telegram: int, message: str):
+        bot.send_message(id_telegram, message)
+        logging.info(f'Mensagem envia para o usuário {id_telegram}')
+
     def start_bot(self):
         bot.infinity_polling()
 
