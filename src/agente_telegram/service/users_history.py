@@ -1,4 +1,7 @@
+from datetime import timedelta
 import logging
+
+from sqlalchemy import func
 
 from agente_telegram.util.get_session import (
     get_session
@@ -74,4 +77,26 @@ class UserHistoryService:
             return []
 
         return history.history
+
+    def query_by_updated(self):
+        '''Retorna os usuários a partir de um intervalo de dias'''
+
+        logging.info(
+            "consulta o histórico dos usuário a partir da data de atualização"
+            )
+
+        with get_session(self.engine) as session:
+
+            users = session.query(UserHistory).filter(
+                UserHistory.updated_at < (func.now() - timedelta(days=2)),
+                UserHistory.notification_inactivity is False
+            ).with_for_update(skip_locked=True).limit(20).all()
+
+        logging.info(f'Quantidade de usuários retornado {len(users)}')
+
+        return users
+
+
+
+
 
