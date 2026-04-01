@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from datetime import timedelta
 import logging
 
@@ -78,7 +79,7 @@ class UserHistoryService:
 
         return history.history
 
-    def query_by_updated(self):
+    def yield_inactive_users_for_processing(self) -> Generator[list[UserHistory]]:
         '''Retorna os usuários a partir de um intervalo de dias'''
 
         logging.info(
@@ -89,12 +90,26 @@ class UserHistoryService:
 
             users = session.query(UserHistory).filter(
                 UserHistory.updated_at < (func.now() - timedelta(days=2)),
-                UserHistory.notification_inactivity is False
+                UserHistory.notification_inactivity.is_(False)
             ).with_for_update(skip_locked=True).limit(20).all()
 
-        logging.info(f'Quantidade de usuários retornado {len(users)}')
+            logging.info(f'Quantidade de usuários retornado {len(users)}')
 
-        return users
+            try:
+                yield users
+
+                session.commit()
+
+                logging.info(f'Commit realizado para {len(users)}')
+
+            except Exception:
+
+                session.rollback()
+
+                logging.error('Falha no processamento')
+
+
+
 
 
 
