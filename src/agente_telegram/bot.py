@@ -1,3 +1,5 @@
+"""Módulo principal do bot Telegram com handlers de comandos e mensagens."""
+
 import logging
 
 import telebot
@@ -18,8 +20,14 @@ bot = telebot.TeleBot(settings.token_telegram.get_secret_value())
 
 
 class bot_telegram:
+    """Classe que encapsula os handlers e a lógica do bot Telegram."""
 
     def cadastro_usuario(self, message: Message):
+        """Verifica se o usuário já existe e, caso contrário, realiza o cadastro.
+
+        Args:
+            message: Mensagem recebida do Telegram contendo dados do usuário.
+        """
         user_telegram = UserTelegram()
 
         full_name = message.from_user.full_name
@@ -44,6 +52,14 @@ class bot_telegram:
 
 
     def welcome(self, message: Message):
+        """Handler dos comandos /start e /hello.
+
+        Cadastra o usuário e solicita o compartilhamento do número
+        de telefone via botão interativo do Telegram.
+
+        Args:
+            message: Mensagem recebida do Telegram.
+        """
         markup = ReplyKeyboardMarkup(
             one_time_keyboard=True,
             resize_keyboard=True
@@ -65,6 +81,14 @@ class bot_telegram:
 
 
     def handle_contact(self, message: Message):
+        """Handler para recebimento do contato compartilhado pelo usuário.
+
+        Salva o número de telefone no banco de dados para confirmar
+        o cadastro do usuário.
+
+        Args:
+            message: Mensagem do Telegram contendo o objeto contact.
+        """
         if message.contact is not None:
             phone = message.contact.phone_number
 
@@ -81,6 +105,14 @@ class bot_telegram:
                 logging.error("Erro ao atualizar o usuário")
 
     def proccess_chat(self, message: Message):
+        """Processa uma mensagem de texto enviando ao Gemini e salvando o histórico.
+
+        Recupera o histórico existente, envia a mensagem ao modelo,
+        e persiste o histórico atualizado no banco de dados.
+
+        Args:
+            message: Mensagem de texto recebida do Telegram.
+        """
 
         history_instance = UserHistoryService()
 
@@ -113,6 +145,14 @@ class bot_telegram:
         bot.reply_to(message, resposta)
 
     def echo(self, message: Message):
+        """Handler padrão para mensagens de texto.
+
+        Verifica se o usuário completou o cadastro (telefone confirmado)
+        antes de encaminhar a mensagem para o chat com a IA.
+
+        Args:
+            message: Mensagem de texto recebida do Telegram.
+        """
         user_telegram = UserTelegram()
 
         self.cadastro_usuario(message)
@@ -126,7 +166,11 @@ class bot_telegram:
         bot.reply_to(message, "Digite /start e confirme seu número para continuar")
 
     def reset_chat(self, message: Message):
-        '''Método para o usuário limpar o contexto do chat'''
+        """Handler do comando /reset. Limpa o histórico de conversa do usuário.
+
+        Args:
+            message: Mensagem recebida do Telegram.
+        """
 
         try:
             history_instance = UserHistoryService()
@@ -145,16 +189,24 @@ class bot_telegram:
 
     @staticmethod
     def send_mensage(id_telegram: int, message: str):
+        """Envia uma mensagem para um usuário do Telegram.
+
+        Args:
+            id_telegram: Identificador do chat/usuário no Telegram.
+            message: Texto da mensagem a ser enviada.
+        """
         bot.send_message(id_telegram, message)
         logging.info(f'Mensagem envia para o usuário {id_telegram}')
 
     def start_bot(self):
+        """Inicia o bot em modo polling contínuo."""
         bot.infinity_polling()
 
 
 instancia = bot_telegram()
 
 def setup_bot_handlers():
+    """Registra os handlers de comandos e mensagens no bot."""
     bot.message_handler(commands=['start', 'hello'])(instancia.welcome)
     bot.message_handler(commands=['reset'])(instancia.reset_chat)
     bot.message_handler(content_types=['contact'])(instancia.handle_contact)
@@ -164,6 +216,7 @@ def setup_bot_handlers():
 setup_bot_handlers()
 
 def entrypoint():
+    """Entrypoint para execução do bot em modo polling."""
     instancia = bot_telegram()
     instancia.start_bot()
 

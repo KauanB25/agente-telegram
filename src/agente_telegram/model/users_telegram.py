@@ -1,3 +1,5 @@
+"""Modelo SQLAlchemy para a tabela de usuários do Telegram."""
+
 from datetime import datetime
 
 from typing import List, TYPE_CHECKING
@@ -12,6 +14,12 @@ if TYPE_CHECKING:
 
 
 class UsersTelegram(Base):
+    """Representa um usuário cadastrado via Telegram.
+
+    Armazena o identificador do Telegram, nome completo e telefone,
+    além dos timestamps de criação e última atualização.
+    """
+
     __tablename__ = "users_telegram"
 
     id: Mapped[int] = mapped_column(primary_key=True)

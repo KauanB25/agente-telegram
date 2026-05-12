@@ -1,3 +1,5 @@
+"""Modelo SQLAlchemy para a tabela de histórico de conversas."""
+
 from datetime import datetime
 
 from typing import Optional
@@ -10,6 +12,12 @@ from .users_telegram import UsersTelegram
 
 
 class UserHistory(Base):
+    """Histórico de conversas entre o usuário e a assistente Maria.
+
+    Armazena o histórico em formato JSONB para permitir continuidade
+    entre sessões. Inclui flag de controle para notificações de inatividade.
+    """
+
     __tablename__ = 'users_history'
 
     # id int generated always as identity primary key

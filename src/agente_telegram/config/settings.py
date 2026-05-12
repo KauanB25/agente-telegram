@@ -1,8 +1,15 @@
+"""Módulo de configuração da aplicação via variáveis de ambiente."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, SecretStr
 
 
 class Settings(BaseSettings):
+    """Configurações da aplicação carregadas automaticamente do arquivo .env.
+
+    Utiliza pydantic-settings para validação de tipos e carregamento
+    de variáveis de ambiente com suporte a aliases e valores padrão.
+    """
     token_telegram: SecretStr = Field(
         ...,
         alias='TOKEN_TELEGRAM',

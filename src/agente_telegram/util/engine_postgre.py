@@ -1,8 +1,17 @@
+"""Módulo responsável pela criação e gerenciamento da engine SQLAlchemy como singleton."""
+
 from sqlalchemy import create_engine, Engine
 from agente_telegram.config.settings import settings
 
 
 class DatabaseEngine:
+    """Singleton que encapsula a engine SQLAlchemy para conexão com o PostgreSQL.
+
+    Garante que apenas um connection pool seja criado e reutilizado
+    por toda a aplicação, independente de quantas vezes a classe
+    for instanciada.
+    """
+
     _instance: 'DatabaseEngine | None' = None
 
     _engine: Engine | None = None
@@ -17,6 +26,7 @@ class DatabaseEngine:
 
     @classmethod
     def _create_engine(cls):
+        """Monta a URL de conexão a partir das settings e inicializa a engine."""
 
         url_db = (
             f"{settings.db_postgree_driver}://"
@@ -31,4 +41,5 @@ class DatabaseEngine:
 
     @property
     def engine(self) -> Engine:
+        """Retorna a instância da engine SQLAlchemy."""
         return self._engine
