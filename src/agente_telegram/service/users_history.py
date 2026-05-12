@@ -7,23 +7,14 @@ from sqlalchemy import func
 from agente_telegram.util.get_session import (
     get_session
     )
-from agente_telegram.util.engine_postgre import (
-    create_engine_postgre
-    )
-from agente_telegram.config.settings import settings
+from agente_telegram.util.engine_postgre import DatabaseEngine
 from agente_telegram.model.users_history import UserHistory
 
 
 class UserHistoryService:
 
     def __init__(self):
-        self.engine = create_engine_postgre(
-            settings.db_postgree_user,
-            settings.db_postgree_secret.get_secret_value(),
-            settings.db_postgree_host,
-            settings.db_postgree_database,
-            settings.db_postgree_driver
-            )
+        self.engine = DatabaseEngine().engine
 
     def create_user(self, id_telegram):
         try:

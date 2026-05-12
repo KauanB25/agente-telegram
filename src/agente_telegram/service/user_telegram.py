@@ -1,19 +1,12 @@
 from agente_telegram.model.users_telegram import UsersTelegram
-from agente_telegram.util.engine_postgre import create_engine_postgre
-from agente_telegram.config.settings import settings
+from agente_telegram.util.engine_postgre import DatabaseEngine
 from agente_telegram.util.get_session import get_session
 
 
 class UserTelegram:
 
     def __init__(self):
-        self.engine = create_engine_postgre(
-            settings.db_postgree_user,
-            settings.db_postgree_secret.get_secret_value(),
-            settings.db_postgree_host,
-            settings.db_postgree_database,
-            settings.db_postgree_driver
-            )
+        self.engine = DatabaseEngine().engine
 
     def insert_new_user(self, id_telegram: int, full_name: str) -> bool:
         try:
