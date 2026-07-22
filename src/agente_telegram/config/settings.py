@@ -84,6 +84,12 @@ class Settings(BaseSettings):
         default="*"
     )
 
+    secret_token: SecretStr = Field(
+        ...,
+        alias="SECRET_TOKEN",
+        description="Token para autenticação do webhook"
+    )
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

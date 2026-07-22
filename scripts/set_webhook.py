@@ -9,7 +9,7 @@ bot.remove_webhook()
 url_webhook = settings.url_webhook
 
 # Define o novo webhook
-sucesso = bot.set_webhook(url=url_webhook)
+sucesso = bot.set_webhook(url=url_webhook, secret_token=settings.secret_token.get_secret_value())
 
 if sucesso:
     print(f"✅ Webhook configurado com sucesso para: {url_webhook}")
