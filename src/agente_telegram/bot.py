@@ -144,7 +144,7 @@ class bot_telegram:
             logging.error(f"Erro ao resetar o chat: {e}")
 
     @staticmethod
-    def send_mensage(id_telegram: int, message: str):
+    def send_message(id_telegram: int, message: str):
         bot.send_message(id_telegram, message)
         logging.info(f'Mensagem envia para o usuário {id_telegram}')
 
