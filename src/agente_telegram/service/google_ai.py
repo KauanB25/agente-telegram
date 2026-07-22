@@ -1,9 +1,17 @@
+"""Serviço de integração com a API do Google Gemini para chat de ensino de inglês."""
+
 from google import genai
 from google.genai import types
 
 from agente_telegram.config.settings import settings
 
+
 class GoogleChat:
+    """Gerencia uma sessão de chat com o Google Gemini.
+
+    Inicializa o cliente com o system prompt da assistente Maria
+    e mantém o histórico da conversa para continuidade contextual.
+    """
 
     def __init__(self, history):
         api_key = settings.google_gemini_api_key
@@ -70,6 +78,14 @@ But I can teach you some programming vocabulary! For example, 'code' is 'código
         )
 
     def send_message(self, message):
+        """Envia uma mensagem ao Gemini e retorna a resposta em texto.
+
+        Args:
+            message: Texto da mensagem do usuário.
+
+        Returns:
+            Texto da resposta gerada pelo modelo.
+        """
         resposta = self.chat.send_message(message)
 
         return resposta.text

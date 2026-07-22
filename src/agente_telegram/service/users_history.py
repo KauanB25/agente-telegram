@@ -1,3 +1,4 @@
+"""Serviço de gerenciamento do histórico de conversas dos usuários."""
 from collections.abc import Generator
 from datetime import timedelta
 import logging
@@ -7,25 +8,25 @@ from sqlalchemy import func
 from agente_telegram.util.get_session import (
     get_session
     )
-from agente_telegram.util.engine_postgre import (
-    create_engine_postgre
-    )
-from agente_telegram.config.settings import settings
+from agente_telegram.util.engine_postgre import DatabaseEngine
 from agente_telegram.model.users_history import UserHistory
 
 
 class UserHistoryService:
+    """Operações de CRUD para o histórico de conversas com a assistente Maria."""
 
     def __init__(self):
-        self.engine = create_engine_postgre(
-            settings.db_postgree_user,
-            settings.db_postgree_secret.get_secret_value(),
-            settings.db_postgree_host,
-            settings.db_postgree_database,
-            settings.db_postgree_driver
-            )
+        self.engine = DatabaseEngine().engine
 
     def create_user(self, id_telegram):
+        """Cria um registro de histórico vazio para um novo usuário.
+
+        Args:
+            id_telegram: Identificador do usuário na tabela users_telegram.
+
+        Returns:
+            True se criado com sucesso, False em caso de erro.
+        """
         try:
             new_history = UserHistory(
                 id_user=id_telegram,
@@ -45,6 +46,12 @@ class UserHistoryService:
             return False
 
     def update_history(self, id_telegram, new_history):
+        """Atualiza o histórico de conversa de um usuário.
+
+        Args:
+            id_telegram: Identificador do usuário na tabela users_telegram.
+            new_history: Lista de mensagens no formato JSONB a ser salva.
+        """
 
         with get_session(self.engine) as session:
                     # Usando um nome diferente para o objeto do banco para não dar conflito
@@ -63,6 +70,17 @@ class UserHistoryService:
                         # self.create_user(id_telegram) # Opcional: tentar recriar aqui
 
     def consult_history(self, id_telegram):
+        """Consulta o histórico de conversa de um usuário.
+
+        Se o usuário não possuir histórico, cria um registro vazio
+        automaticamente.
+
+        Args:
+            id_telegram: Identificador do usuário na tabela users_telegram.
+
+        Returns:
+            Lista com o histórico de mensagens ou lista vazia se não houver.
+        """
         logging.info("consultando registro do usuário")
 
         with get_session(self.engine) as session:
@@ -80,7 +98,15 @@ class UserHistoryService:
         return history.history
 
     def yield_inactive_users_for_processing(self) -> Generator[list[UserHistory]]:
-        '''Retorna os usuários a partir de um intervalo de dias'''
+        """Retorna lotes de usuários inativos há mais de 2 dias para processamento.
+
+        Utiliza SELECT ... FOR UPDATE SKIP LOCKED para segurança em
+        concorrência, processando em lotes de até 20 usuários por vez.
+        O commit é realizado após o bloco do yield ser consumido com sucesso.
+
+        Yields:
+            Lista de objetos UserHistory de usuários inativos ainda não notificados.
+        """
 
         logging.info(
             "consulta o histórico dos usuário a partir da data de atualização"
