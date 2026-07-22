@@ -1,6 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from agente_telegram.bot import bot_telegram
+from agente_telegram.config.settings import settings
 from agente_telegram.service.users_history import UserHistoryService
 
 
@@ -16,7 +17,7 @@ def job():
 
             print(user.id_user)
 
-            bot_telegram.send_mensage(
+            bot_telegram.send_message(
                 user.id_user,
                 "Olá, não nos falamos a muito tempo, vamos conversar?"
             )
@@ -26,7 +27,9 @@ def job():
 scheduler.add_job(
     job,
     'cron',
-    hour=8)
+    hour=settings.scheduler_hour,
+    minute=settings.scheduler_minutes,
+    day_of_week=settings.scheduler_day_week)
 
 
 if __name__ == '__main__':

@@ -59,6 +59,24 @@ class Settings(BaseSettings):
         alias='URL_WEBHOOK',
         description="URL para qual o telegram irá enviar as requisições")
 
+    scheduler_hour: str | int = Field(
+        alias="SCHEDULER_HOUR",
+        description="Hora para a execução do job",
+        default=8
+    )
+
+    scheduler_minutes: str | int = Field(
+        alias="SCHEDULER_MINUTES",
+        description="Minuto para a execução do job",
+        default=0
+    )
+
+    scheduler_day_week:str = Field(
+        alias="SCHEDULER_DAY_WEEK",
+        description="Dia ou dias execução do job",
+        default="*"
+    )
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
